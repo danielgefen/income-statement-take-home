@@ -1,0 +1,1 @@
+{"company": "Invalid JSON", "accounts": [}

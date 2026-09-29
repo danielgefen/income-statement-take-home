@@ -15,6 +15,13 @@ test('accepts the balanced supplied ledger', () => {
 });
 
 const invalidCases = [
+  ['missing company', l => { delete l.company; }, /company/i],
+  ['object currency', l => { l.currency = {}; }, /currency/i],
+  ['missing account name', l => { delete l.accounts[0].name; }, /1000.*name/i],
+  ['object account name', l => { l.accounts[0].name = {}; }, /1000.*name/i],
+  ['nonboolean activity flag', l => { l.accounts[0].is_active = 'false'; }, /1000.*is_active/i],
+  ['missing entry id', l => { delete l.journal_entries[0].id; }, /entry.*id/i],
+  ['object entry memo', l => { l.journal_entries[0].memo = {}; }, /JE-001.*memo/i],
   ['unknown account', l => { l.journal_entries[0].lines[0].account = '9999'; }, /JE-001.*9999/],
   ['duplicate account number', l => { l.accounts.push({ ...l.accounts[0] }); }, /duplicate.*1000/i],
   ['unsupported account classification', l => { l.accounts[0].subtype = 'operating_revenue'; }, /1000.*classification/i],
@@ -38,3 +45,16 @@ test('rejects a malformed ledger structure with a useful error', () => {
     assert.throws(() => validateLedger(ledger), /ledger/i);
   }
 });
+
+test('rejects invalid JSON syntax before interpreting accounting data', () => {
+  assert.throws(() => loadLedger(new URL('./fixtures/malformed-ledger.txt', import.meta.url)), SyntaxError);
+});
+
+for (const status of ['draft', 'void']) {
+  test('validates malformed ' + status + ' entries even though they do not count in reports', () => {
+    const ledger = structuredClone(source);
+    ledger.journal_entries[0].status = status;
+    ledger.journal_entries[0].lines[0].debit = '5000.001';
+    assert.throws(() => validateLedger(ledger), /JE-001.*amount/i);
+  });
+}

@@ -9,13 +9,19 @@ const classifications = new Map([
   ['expense', ['cogs', 'operating_expense']],
 ]);
 
+const isNonemptyText = value => typeof value === 'string' && value.trim().length > 0;
+
 export function validateLedger(ledger) {
   if (!ledger || !Array.isArray(ledger.accounts) || !Array.isArray(ledger.journal_entries)) {
     throw new Error('Invalid ledger: accounts and journal_entries must be arrays.');
   }
+  if (!isNonemptyText(ledger.company)) throw new Error('Invalid ledger company: a name is required.');
+  if (!isNonemptyText(ledger.currency)) throw new Error('Invalid ledger currency: a currency label is required.');
   const accounts = new Set();
   for (const account of ledger.accounts) {
-    if (!account || typeof account.number !== 'string' || !account.number) throw new Error('Invalid ledger account number.');
+    if (!account || !isNonemptyText(account.number)) throw new Error('Invalid ledger account number.');
+    if (!isNonemptyText(account.name)) throw new Error(`Account ${account.number}: invalid name.`);
+    if (typeof account.is_active !== 'boolean') throw new Error(`Account ${account.number}: is_active must be boolean.`);
     if (accounts.has(account.number)) throw new Error(`Duplicate account ${account.number}.`);
     if (!classifications.get(account.type)?.includes(account.subtype)) {
       throw new Error(`Account ${account.number}: unsupported classification.`);
@@ -24,6 +30,8 @@ export function validateLedger(ledger) {
   }
   for (const entry of ledger.journal_entries) {
     const context = `Entry ${entry?.id ?? '(missing id)'}`;
+    if (!isNonemptyText(entry?.id)) throw new Error('Invalid entry id: a nonempty string is required.');
+    if (typeof entry.memo !== 'string') throw new Error(`${context}: memo must be text.`);
     if (!['posted', 'draft', 'void'].includes(entry?.status)) throw new Error(`${context}: invalid status.`);
     try { validateDateRange(entry.date, entry.date); }
     catch { throw new Error(`${context}: invalid date.`); }
