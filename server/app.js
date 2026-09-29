@@ -7,7 +7,14 @@ export function createApp(ledger, { frontendDirectory } = {}) {
   app.disable('x-powered-by');
   app.get('/income-statement', (request, response) => {
     try {
-      const statement = calculateIncomeStatement(ledger, { start: request.query.start, end: request.query.end });
+      // Inspect the raw query: Express truncates parsed parameters after its limit.
+      const query = new URL(request.originalUrl, 'http://localhost').searchParams;
+      const start = query.getAll('start');
+      const end = query.getAll('end');
+      const statement = calculateIncomeStatement(ledger, {
+        start: start.length === 1 ? start[0] : undefined,
+        end: end.length === 1 ? end[0] : undefined,
+      });
       response.json(serializeStatement(statement));
     } catch (error) {
       if (error instanceof InvalidDateRangeError) {

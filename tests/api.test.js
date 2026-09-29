@@ -46,8 +46,9 @@ for (const query of [
   '?start=2026-03-31&end=2026-01-01',
   '?start=2026-01-01&start=2026-02-01&end=2026-03-31',
   '?start=2026-01-01&end=2026-03-31&end=2026-04-01',
+  '?start=2026-01-01&end=2026-03-31' + '&x=1'.repeat(998) + '&start=2026-02-01',
 ]) {
-  test('GET rejects an invalid date query: ' + query, async t => {
+  test('GET rejects an invalid date query: ' + (query.length > 200 ? 'duplicate date beyond parser limit' : query), async t => {
     const response = await request(t, query);
     assert.equal(response.status, 400);
     const body = await response.json();
