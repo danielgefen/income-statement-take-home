@@ -1,0 +1,76 @@
+{
+  "company": "Northwind Coffee Roasters",
+  "currency": "USD",
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-03-31"
+  },
+  "revenue": {
+    "accounts": [
+      {
+        "number": "4000",
+        "name": "Product Revenue",
+        "amount": "35650.75"
+      },
+      {
+        "number": "4100",
+        "name": "Subscription Revenue",
+        "amount": "3000.00"
+      },
+      {
+        "number": "4900",
+        "name": "Sales Returns & Discounts",
+        "amount": "-800.25"
+      }
+    ],
+    "total": "37850.50"
+  },
+  "costOfGoodsSold": {
+    "accounts": [
+      {
+        "number": "5000",
+        "name": "Cost of Goods Sold",
+        "amount": "14272.75"
+      }
+    ],
+    "total": "14272.75"
+  },
+  "grossProfit": "23577.75",
+  "operatingExpenses": {
+    "accounts": [
+      {
+        "number": "6000",
+        "name": "Salaries",
+        "amount": "55500.00"
+      },
+      {
+        "number": "6100",
+        "name": "Rent",
+        "amount": "9000.00"
+      },
+      {
+        "number": "6200",
+        "name": "Software",
+        "amount": "1099.97"
+      },
+      {
+        "number": "6300",
+        "name": "Marketing (legacy)",
+        "amount": "2500.10"
+      }
+    ],
+    "total": "68100.07"
+  },
+  "operatingIncome": "-44522.32",
+  "otherIncome": {
+    "accounts": [
+      {
+        "number": "7000",
+        "name": "Interest Income",
+        "amount": "42.18"
+      }
+    ],
+    "total": "42.18"
+  },
+  "netIncome": "-44480.14"
+}
