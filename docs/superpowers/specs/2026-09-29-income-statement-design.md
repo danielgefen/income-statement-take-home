@@ -1,7 +1,10 @@
 # Income statement design
 
-Date: 2026-09-29  
-Status: written design for user review; implementation follows approval.
+Date: 2026-09-29
+
+Status: approved in conversation on 2026-09-29, including ledger validation and
+retaining the previous report during loading or errors. Implementation planning
+follows this design.
 
 ## Purpose and scope
 
