@@ -61,3 +61,5 @@ Browser acceptance checks cover Q1, March, changing dates before submission, emp
 ## Source
 
 [Campfire assignment](https://github.com/Campfire-eng/income-statement-take-home/tree/e2579c7065dcbeb15e43e1755ef59110f0da614b), pinned to commit `e2579c7065dcbeb15e43e1755ef59110f0da614b`. See [NOTES.md](NOTES.md) for accounting assumptions, the Q1 result, AI assistance, and next steps.
+
+The original assignment is preserved in [ASSIGNMENT.md](ASSIGNMENT.md), with its [accounting primer](ACCOUNTING_PRIMER.md).
