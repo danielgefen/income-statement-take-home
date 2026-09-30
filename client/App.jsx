@@ -4,6 +4,7 @@ import Statement from './Statement.jsx';
 import './styles.css';
 
 const initialPeriod = { start: '2026-01-01', end: '2026-03-31' };
+const requestTimeoutMs = 15_000;
 
 export default function App() {
   const [draft, setDraft] = useState(initialPeriod);
@@ -18,17 +19,26 @@ export default function App() {
     activeRequest.current = controller;
     setLoading(true);
     setError('');
+    let timedOut = false;
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, requestTimeoutMs);
     try {
       const response = await fetch(`/income-statement?${new URLSearchParams(period)}`, { signal: controller.signal });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error?.message || 'Unable to generate the income statement.');
       if (activeRequest.current === controller && !controller.signal.aborted) setReport(body);
     } catch (failure) {
-      if (activeRequest.current === controller && !controller.signal.aborted) {
-        setError(failure instanceof TypeError ? 'Unable to reach the server. Check the connection and try again.' : failure.message);
+      // A timeout abort is visible; unmount/superseded-request aborts stay silent.
+      if (activeRequest.current === controller && (!controller.signal.aborted || timedOut)) {
+        if (timedOut) setError('The request timed out. Please try again.');
+        else if (failure instanceof SyntaxError) setError('The server returned an unexpected response. Please try again.');
+        else setError(failure instanceof TypeError ? 'Unable to reach the server. Check the connection and try again.' : failure.message);
       }
     } finally {
-      if (activeRequest.current === controller && !controller.signal.aborted) setLoading(false);
+      clearTimeout(timeout);
+      if (activeRequest.current === controller && (!controller.signal.aborted || timedOut)) setLoading(false);
     }
   }
 

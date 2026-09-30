@@ -145,6 +145,73 @@ for (const failure of ['network', 'http']) {
   });
 }
 
+// A non-JSON response must not expose a parser exception or prevent retry.
+for (const status of [200, 503]) {
+  test(`non-JSON HTTP ${status} shows a friendly error and permits retry`, async ({ page }) => {
+    await openQ1(page);
+    await page.route('**/income-statement?*', route => route.fulfill({
+      status, contentType: 'text/html', body: '<html>Unexpected upstream response</html>',
+    }), { times: 1 });
+    await setPeriod(page, '2026-03-01', '2026-03-31');
+    await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+    await expect(page.getByRole('alert')).toContainText('The server returned an unexpected response. Please try again.');
+    await expectAmount(page, 'Net income', '(44,480.14)');
+    await expect(caption(page)).toContainText('2026-01-01 to 2026-03-31');
+    await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+    await expectAmount(page, 'Net income', '(9,720.24)');
+    await expect(page.getByRole('alert')).toHaveCount(0);
+  });
+}
+
+// Removing the timeout or merely hiding the spinner must fail this test:
+// the real fetch must abort, the prior report must survive, and retry must work.
+for (const initial of [true, false]) {
+  test(`${initial ? 'initial' : 'subsequent'} request times out after 15 seconds and permits retry`, async ({ page }) => {
+    await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+    await page.clock.pauseAt(new Date('2026-01-01T00:00:01Z'));
+    if (!initial) await openQ1(page);
+    const received = deferred();
+    const release = deferred();
+    const aborted = page.waitForEvent('requestfailed', { predicate: apiRequest });
+    await page.route('**/income-statement?*', async route => {
+      received.resolve();
+      await release.promise;
+      await route.abort('failed');
+    }, { times: 1 });
+    try {
+      if (initial) await page.goto('/');
+      else {
+        await setPeriod(page, '2026-03-01', '2026-03-31');
+        await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+      }
+      await received.promise;
+      await page.clock.runFor(14_999);
+      await expect(page.getByRole('button', { name: 'Generating…', exact: true })).toBeDisabled();
+      await expect(page.getByRole('alert')).toHaveCount(0);
+      await page.clock.runFor(1);
+      await expect(page.getByRole('alert')).toContainText('The request timed out. Please try again.');
+      await aborted;
+      await expect(page.getByRole('button', { name: 'Generate statement', exact: true })).toBeEnabled();
+      if (initial) await expect(page.getByRole('table')).toHaveCount(0);
+      else {
+        await expectAmount(page, 'Net income', '(44,480.14)');
+        await expect(caption(page)).toContainText('2026-01-01 to 2026-03-31');
+      }
+      release.resolve();
+      await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+      await expectAmount(page, 'Net income', initial ? '(44,480.14)' : '(9,720.24)');
+      await expect(page.getByRole('alert')).toHaveCount(0);
+      await page.clock.runFor(15_000);
+      await expect(page.getByRole('alert')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Generate statement', exact: true })).toBeEnabled();
+    } finally {
+      release.resolve();
+      // Observe the event promise on a failing pre-fix run as well.
+      aborted.catch(() => {});
+    }
+  });
+}
+
 // No sleep-based racing: hold an actual API response until assertions explicitly release it.
 // The current UI prevents concurrent submissions; this checks that guard, not an unreachable race.
 test('a delayed request blocks resubmission and remains bound to its submitted dates', async ({ page }) => {

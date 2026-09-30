@@ -15,6 +15,8 @@ npm start
 
 Open http://127.0.0.1:3000. The initial report covers January 1–March 31, 2026. Choose dates, then select **Generate statement**. Changing inputs alone does not change the displayed report.
 
+Requests time out after 15 seconds. A timeout or failed response leaves the previous report visible and re-enables Generate for a manual retry. Non-JSON responses show a friendly error rather than parser details.
+
 Select any amount to expand its calculation (tap, click, or keyboard). Account rows show the included journal lines, raw debit/credit, and signed contribution. Subtotals show their accounts; profit lines show their formula and operands. Parentheses mean negative amounts. Details always belong to the displayed report's period.
 
 For development, use two terminals:
@@ -61,7 +63,7 @@ Periods without income-statement activity return HTTP 200 with all relevant acco
 ### How to check the numbers
 
 ```sh
-npm test                # all automated checks
+npm test                # Node automated checks
 npm run test:accounting # correct results for supported, valid input
 npm run test:validation # malformed input and invalid request handling
 npm run test:mutations  # prove tests reject six deliberate accounting bugs
@@ -81,7 +83,7 @@ npx playwright install chromium # once after npm ci; downloads the test browser
 npm run test:browser
 ```
 
-This runs seven scenarios in desktop and phone-sized Chromium (14 checks), including all Q1 amounts, keyboard/tap disclosure controls, March submission and matching details, empty periods, invalid/missing dates, network/HTTP failures with retry, and a delayed response while draft dates are edited. Successful responses use the real Express API and built React app. Only transport failures and response timing are controlled by the tests; expected displayed amounts are literals.
+This runs eleven scenarios in desktop and phone-sized Chromium (22 checks), including all Q1 amounts, keyboard/tap disclosure controls, March submission and matching details, empty periods, invalid/missing dates, network/HTTP/non-JSON failures with retry, initial and subsequent request timeouts, and a delayed response while draft dates are edited. Successful responses use the real Express API and built React app. Only transport failures and response timing are controlled by the tests; expected displayed amounts are literals. A controlled browser clock verifies the 15-second timeout boundary and successful retry without a real-time wait.
 
 The form intentionally blocks resubmission while loading. The delayed-response test verifies that guard and that returned results retain their submitted period; it does not claim to exercise an out-of-order pair of different-period requests that the UI cannot initiate.
 
