@@ -41,7 +41,6 @@ export function calculateIncomeStatement(ledger, { start, end }) {
     }
   }
   for (const section of sections) {
-    report[section].accounts.sort((a, b) => a.number.localeCompare(b.number, 'en', { numeric: true }));
     report[section].total = report[section].accounts.reduce((sum, row) => sum + row.amount, 0n);
   }
   report.grossProfit = report.revenue.total - report.costOfGoodsSold.total;

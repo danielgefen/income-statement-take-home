@@ -123,15 +123,14 @@ for (const date of ['2026-01-10', '2026-02-15', '2030-01-01']) {
   });
 }
 
-test('takes new accounts from the chart and sorts account numbers without changing the ledger', () => {
+test('takes new accounts in chart order without changing the ledger', () => {
   const ledger = smallLedger();
   ledger.accounts.unshift({ number: '7100', name: 'New income', type: 'revenue', subtype: 'other_income', is_active: true });
-  ledger.accounts.reverse();
   ledger.journal_entries.push(entry('new-income', '1000', '7100', '7.25'));
   const before = structuredClone(ledger);
   const report = calculateIncomeStatement(ledger, q1);
   assert.equal(report?.netIncome, 6725n);
-  assert.deepEqual(report.otherIncome.accounts.map(a => a.number), ['7000', '7100']);
+  assert.deepEqual(report.otherIncome.accounts.map(a => a.number), ['7100', '7000']);
   assert.equal(groups.flatMap(group => report[group].accounts).length, 10);
   assert.deepEqual(ledger, before);
 });

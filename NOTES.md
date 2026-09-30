@@ -16,7 +16,7 @@ January 1–March 31 net income is **-$44,480.14** (a net loss).
 
 ## Assumptions and decisions
 
-Only posted entries within the inclusive date range count. Revenue uses credits minus debits; expenses use debits minus credits. Subtypes determine sections. Balance-sheet accounts never enter the statement. Inactive and zero-activity income-statement accounts stay visible; inactivity does not erase historical expenses.
+Only posted entries within the inclusive date range count. Revenue uses credits minus debits; expenses use debits minus credits. Subtypes determine sections; accounts within each section keep their order from the chart. Balance-sheet accounts never enter the statement. Inactive and zero-activity income-statement accounts stay visible; inactivity does not erase historical expenses.
 
 The supplied journal is authoritative: the $12,000 subscription invoice is deferred revenue, with only three $1,000 recognition entries counted in Q1. Cash collection is not revenue again. All $9,000 rent stays in January as posted; this report does not introduce new accrual entries. Returns/discounts reduce revenue, and the $100 vendor credit reduces software expense. Draft bonuses and void duplicates are excluded.
 
