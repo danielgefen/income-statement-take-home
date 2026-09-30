@@ -1,0 +1,36 @@
+{
+  "amountUnit": "signed integer USD cents",
+  "accountSections": {
+    "4000": "revenue", "4100": "revenue", "4900": "revenue",
+    "5000": "costOfGoodsSold", "6000": "operatingExpenses",
+    "6100": "operatingExpenses", "6200": "operatingExpenses",
+    "6300": "operatingExpenses", "7000": "otherIncome"
+  },
+  "entries": [
+    {"id":"JE-001","date":"2025-12-15","amounts":{"4000":"500000"}},
+    {"id":"JE-002","date":"2026-01-05","amounts":{"4000":"1245075"}},
+    {"id":"JE-003","date":"2026-01-05","amounts":{"5000":"498030"}},
+    {"id":"JE-004","date":"2026-01-10","amounts":{},"reason":"AR and deferred revenue are balance-sheet accounts; billing is not revenue recognition."},
+    {"id":"JE-005","date":"2026-01-31","amounts":{"4100":"100000"}},
+    {"id":"JE-006","date":"2026-01-31","amounts":{"6000":"1850000"}},
+    {"id":"JE-007","date":"2026-01-01","amounts":{"6100":"900000"},"reason":"Entire recorded rent expense belongs on January 1; do not re-accrue."},
+    {"id":"JE-008","date":"2026-01-20","amounts":{"6300":"250010"},"reason":"Inactive accounts retain their historical activity."},
+    {"id":"JE-009","date":"2026-02-03","amounts":{},"reason":"Void entries do not affect the books."},
+    {"id":"JE-010","date":"2026-02-03","amounts":{"4000":"820000"}},
+    {"id":"JE-011","date":"2026-02-03","amounts":{"5000":"328000"}},
+    {"id":"JE-012","date":"2026-02-14","amounts":{"4900":"-65025"}},
+    {"id":"JE-013","date":"2026-02-15","amounts":{},"reason":"Cash and AR are balance-sheet accounts; collection is not revenue recognition."},
+    {"id":"JE-014","date":"2026-02-28","amounts":{"4100":"100000"}},
+    {"id":"JE-015","date":"2026-02-28","amounts":{"6000":"1850000"}},
+    {"id":"JE-016","date":"2026-03-02","amounts":{"4000":"1500000","4900":"-15000"}},
+    {"id":"JE-017","date":"2026-03-02","amounts":{"5000":"601245"}},
+    {"id":"JE-018","date":"2026-03-10","amounts":{"6200":"119997"}},
+    {"id":"JE-019","date":"2026-03-15","amounts":{},"reason":"Draft entries do not affect the books."},
+    {"id":"JE-020","date":"2026-03-20","amounts":{"6200":"-10000"},"reason":"A credit to software reduces expense."},
+    {"id":"JE-021","date":"2026-03-31","amounts":{"4100":"100000"}},
+    {"id":"JE-022","date":"2026-03-31","amounts":{"6000":"1850000"}},
+    {"id":"JE-023","date":"2026-03-31","amounts":{"7000":"4218"}},
+    {"id":"JE-024","date":"2026-04-01","amounts":{"4000":"910000"}},
+    {"id":"JE-025","date":"2026-03-18","amounts":{},"reason":"Void entry; also contains only balance-sheet accounts."}
+  ]
+}
