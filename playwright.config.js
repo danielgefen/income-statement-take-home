@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 
-// A fresh built app, separate from the candidate's running preview on port 3000.
+// A fresh built app, separate from the development server on port 3000.
 export default defineConfig({
   testDir: './tests/browser',
   forbidOnly: true,

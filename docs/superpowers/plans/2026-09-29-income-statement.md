@@ -1,6 +1,9 @@
 # Income Statement Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking.
+Historical implementation plan, retained as a record of the initial development
+sequence. Checkboxes below reflect the original plan, not current completion
+status. See [README.md](../../../README.md) for the delivered implementation and
+[TESTING.md](../../../TESTING.md) for current test coverage.
 
 **Goal:** Build the agreed local income-statement application in understandable,
 independently verifiable increments.
@@ -34,8 +37,6 @@ actual versions used and commit the dependency lockfile.
 - Q1 net income must be the exact string "-44480.14".
 - Keep the last successful report visible on loading/error, labeled with its
   own response period. Ignore obsolete responses.
-- Use the isolated working copy on branch codex/income-statement. Explain each
-  completed stage to Gefen; raise changes to agreed behavior before making them.
 
 ## Review Focus
 
@@ -158,7 +159,7 @@ tests/fixtures/q1-statement.json.
   type-to-sign and subtype-to-section rules explicit. Initialize every relevant
   account to zero, preserve negative contributions, and sort by account number.
 - [ ] Run npm test; require every test to pass. Compare results with the
-  worksheet in the design and walk through the Q1 calculation with Gefen.
+  worksheet in the design.
 - [ ] Commit the supplied data and verified calculator.
 
 ## Task 3: HTTP endpoint
@@ -236,8 +237,6 @@ package.json and package-lock.json.
 
 ## Handoff
 
-Present the running app and explain dates -> request -> calculation -> response
--> table using the actual files. Review any independent-review findings, fix
-confirmed problems, and rerun affected checks. Gefen records the required video
-and receives a brief outline based on the finished implementation. Publishing
-or sending the repository/video requires a separate user request.
+Review independent-review findings, fix confirmed problems, and rerun affected
+checks. Deliver the repository, run instructions, implementation notes, and the
+video walkthrough required by the assignment.

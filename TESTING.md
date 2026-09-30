@@ -1,22 +1,9 @@
-# What is tested, and why
+# Test coverage
 
-This is a reading guide to the committed tests. Checked boxes mean the behavior has
+Checked boxes mean the behavior has
 an automated check; they are not a live test result or a claim that every possible
 bug is covered. Several related inputs can be checked inside one named test.
-
-Start with the short explanation below, then use the checklist to find examples
-you can explain yourself. The linked test files contain the exact assertions.
-
-## A short explanation for the interview
-
-“I separated calculation correctness from input validation. Small examples have
-obvious expected answers, and fixed reference values check the supplied ledger
-over many date ranges. Other fixtures cover different account IDs, reversals,
-leap days, and large amounts. I also deliberately introduced six accounting bugs
-and verified that the tests caught them. Browser checks cover date submission,
-displayed amounts, expanded details, errors, timeouts, and retry. These checks
-provide evidence within the supported data format; they cannot verify whether a
-recorded transaction really happened.”
+The linked test files contain the exact assertions.
 
 ## Commands and counts
 
@@ -34,9 +21,8 @@ Run commands from the repository folder after `npm ci`.
 Before the first browser run, use `npx playwright install chromium`. Leave port
 4178 free. Phone emulation is not testing on a physical phone or in Safari.
 
-The counts below describe the committed suite when this guide was added. Test
-names printed by the commands are the current executable inventory. Update this
-guide when coverage changes. One test contains all 6,105 date-range comparisons;
+The counts below describe the committed suite. Test names printed by the commands
+are the executable inventory. One test contains all 6,105 date-range comparisons;
 those comparisons are not 6,105 separately named tests.
 
 | Node test file | Named tests | Question answered |
@@ -71,10 +57,6 @@ Sources: [statement tests](tests/statement.test.js) and
 - [x] New accounts are taken from the chart, preserve chart order within a section, and contribute to totals without changing the input ledger.
 - [x] An account remains visible when its posted transactions cancel to zero.
 - [x] The calculator rejects invalid dates even when called directly, without HTTP.
-
-**Why this matters:** an entry can be valid JSON and still be interpreted
-incorrectly by our code. Counting the $5,000 draft bonus, for example, would
-overstate expenses and understate Q1 net income by $5,000.
 
 ## Different date ranges and the independent reference
 
@@ -143,12 +125,7 @@ Source: [ledger validation tests](tests/ledger.test.js).
 - [x] Reject an unknown status and an invalid accounting date (two tests).
 - [x] Reject a malformed top-level structure, such as missing or non-array account/entry collections.
 - [x] Reject malformed JSON syntax before accounting validation runs.
-- [x] Reject malformed draft and void entries too, even though they are filtered out of calculations (two tests; this is our documented strict-validation policy).
-
-**Distinction to explain:** `draft` and `void` are recognized, valid statuses;
-the calculator excludes their activity. An unknown status such as `deleted`
-fails validation. A balanced, structurally valid entry can still describe a sale
-that never happened; these tests cannot establish the underlying business facts.
+- [x] Reject malformed draft and void entries too, even though they are filtered out of calculations (two tests; strict ledger-validation policy).
 
 ## HTTP, startup, and explanation details
 
@@ -207,7 +184,7 @@ The last scenario does not exercise two simultaneous, different-period requests:
 the UI prevents that interaction. Timeout tests advance a controlled browser
 clock, so they need not wait 15 real seconds.
 
-## Mutation checks: would the tests catch a wrong calculation?
+## Mutation checks
 
 Source: [mutation-check.mjs](scripts/mutation-check.mjs).
 
@@ -230,15 +207,11 @@ original app and ledger are not modified; the temporary copy is removed.
 This is six targeted experiments, not exhaustive mutation testing or a percentage
 of all possible mistakes. The script does not run the browser suite.
 
-## Limits and how to use this guide
+## Coverage limits
 
 - Coverage is for the supported single-currency, two-decimal schema. There is no FX conversion or general accounting-policy engine.
 - Different-ledger fixtures broaden the examples; they cannot establish correctness for every possible JSON file.
 - Browser coverage is Chromium only, with selected keyboard/accessibility assertions rather than a complete accessibility audit.
 - Non-JSON response handling is tested; arbitrary, syntactically valid but wrongly shaped successful JSON responses are not fully validated by the client.
-- Ad hoc generated-ledger and browser probes discussed during development are separate experiments, not extra committed tests counted here.
-- Passing counts alone are not the explanation. Be ready to open one test, describe its input and expected answer, and identify the mistake that would make it fail.
-
-For practice, start with the $100 sale/$40 cost test, then the Software credit,
-then a single-day range. Explain where each expected value came from before
-discussing the larger test counts.
+- Only committed automated tests are included in this inventory; ad hoc development checks are excluded.
+- Structural validation and calculation tests cannot establish whether a recorded transaction actually occurred.

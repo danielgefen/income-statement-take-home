@@ -62,7 +62,7 @@ Periods without income-statement activity return HTTP 200 with all relevant acco
 
 ### How to check the numbers
 
-See [TESTING.md](TESTING.md) for a plain-language coverage checklist, concrete examples, links to every test group, and an explanation of what the tests do and do not establish.
+See [TESTING.md](TESTING.md) for the coverage checklist, test-file inventory, commands, and coverage limits.
 
 ```sh
 npm test                # Node automated checks
@@ -89,7 +89,7 @@ This runs eleven scenarios in desktop and phone-sized Chromium (22 checks), incl
 
 The form intentionally blocks resubmission while loading. The delayed-response test verifies that guard and that returned results retain their submitted period; it does not claim to exercise an out-of-order pair of different-period requests that the UI cannot initiate.
 
-The command builds the app, starts and stops its own server on port **4178**, and refuses to reuse an existing server. Leave that port free. Your preview on port 3000 is unaffected. Failures retain screenshots and traces under ignored `test-results/`; use `npx playwright show-trace <trace.zip>` to inspect a trace. For a stability check: `npm run test:browser -- --repeat-each=3`.
+The command builds the app, starts and stops its own server on port **4178**, and refuses to reuse an existing server. Leave that port free. A development server on port 3000 is unaffected. Failures retain screenshots and traces under ignored `test-results/`; use `npx playwright show-trace <trace.zip>` to inspect a trace. For a stability check: `npm run test:browser -- --repeat-each=3`.
 
 `npm test` remains the fast automated Node suite; browser tests are a separate explicit command. Phone emulation is not a physical-device or Safari test. Browser acceptance was also exercised manually, including native keyboard date input and stopped-server report retention.
 

@@ -24,7 +24,7 @@ Amounts use BigInt cents from parsing through calculation, and exact decimal str
 
 ## Verification and AI assistance
 
-Codex assisted with design, implementation, tests, and documentation. The candidate selected JavaScript/React, exact cents, account visibility, explicit submission, and expandable calculation details. The Q1 worksheet was derived from the JSON, not supplied as an official answer. Accounting examples were discussed together; independent candidate review remains important.
+Codex assisted with design, implementation, tests, and documentation. Design choices included JavaScript/React, exact cents, all-account visibility, explicit date-range submission, and expandable calculation details. The Q1 worksheet was derived from the supplied JSON; it is not an official answer key.
 
 An independent AI reviewer tabulated every entry before seeing implementation code. Literal contributions check every account and total across 6,105 date intervals. Synthetic ledgers cover alternative charts, leap days, reversals, and huge exact amounts through HTTP/display. Separate tests reject invalid JSON, metadata, dates, references, and unbalanced entries. Six deliberate accounting mutations must fail assertions in isolated copies. Browser tests cover desktop/phone layouts, real API submissions, disclosures, errors/retries, and delayed responses. This is evidence, not proof against all bugs; expandable details aid auditing but are not independent verification. README documents commands and limitations.
 
