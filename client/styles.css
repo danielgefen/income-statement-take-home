@@ -29,7 +29,24 @@ td:last-child, thead th:last-child { text-align: right; font-variant-numeric: ta
 .subtotal-row { border-top: 1px solid #d4dde3; }
 .subtotal-row th, .subtotal-row td { font-weight: 600; }
 .profit-row { background: #f3f6f8; border-top: 1px solid #657581; font-weight: 700; }
-.profit-row:last-child { border-bottom: 3px double #243746; }
+.profit-row:nth-last-child(2) { border-bottom: 3px double #243746; }
+.amount-toggle { min-height: 44px; padding: 4px 0 4px 6px; border: 0; background: transparent; color: inherit; font: inherit; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.amount-toggle:hover { color: #245d83; text-decoration: underline; text-underline-offset: 4px; }
+.disclosure-arrow { display: inline-block; width: 16px; color: #657581; font-size: 12px; }
+.calculation-row > td { padding: 0 8px 14px; text-align: left; white-space: normal; }
+.calculation { background: #f3f6f8; border-left: 3px solid #bacbd6; padding: 16px; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.calculation-rule { margin: 0 0 12px; color: #435967; }
+.source-lines, .formula-lines { list-style: none; margin: 0; padding: 0; }
+.source-lines > li { padding: 12px 0; border-top: 1px solid #d4dde3; }
+.source-identity { margin: 0; font-weight: 600; }
+.source-memo { margin: 4px 0 10px; }
+.line-amounts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; }
+.line-amounts dt { color: #657581; font-size: 12px; }
+.line-amounts dd { margin: 2px 0 0; font-variant-numeric: tabular-nums; }
+.formula-lines li, .calculation-result { display: flex; justify-content: space-between; gap: 20px; }
+.formula-lines li { padding: 5px 0; }
+.formula-lines li > :last-child, .calculation-result strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.calculation-result { border-top: 1px solid #bacbd6; padding-top: 12px; margin: 12px 0 0; }
 .report-note { color: #657581; font-size: 12px; line-height: 1.6; margin: 20px 0 0; max-width: 70ch; }
 @media (max-width: 560px) {
   main { margin: 24px auto; padding: 0 12px; }
@@ -42,4 +59,9 @@ td:last-child, thead th:last-child { text-align: right; font-variant-numeric: ta
   table { font-size: 13px; }
   th, td { padding: 9px 5px; }
   .account-number { width: 54px; }
+  .amount-toggle { width: auto; }
+  .calculation-row > td { padding: 0 0 12px; }
+  .calculation { padding: 12px; }
+  .line-amounts { display: block; }
+  .line-amounts > div { display: flex; justify-content: space-between; gap: 12px; }
 }

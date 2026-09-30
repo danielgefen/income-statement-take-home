@@ -24,12 +24,12 @@ Amounts use BigInt cents from parsing through calculation, and exact decimal str
 
 ## Verification and AI assistance
 
-Codex assisted with design discussion, independent source-data tabulation, implementation, tests, and documentation. The candidate selected JavaScript/React, exact cents, account visibility, and explicit form submission before implementation. The Q1 worksheet was calculated from the supplied JSON, not supplied as an official answer; a candidate-led calculation walkthrough is still pending.
+Codex assisted with design, implementation, tests, and documentation. The candidate selected JavaScript/React, exact cents, account visibility, explicit submission, and expandable calculation details. The Q1 worksheet was derived from the JSON, not supplied as an official answer. Accounting examples were discussed together; independent candidate review remains important.
 
-Automated tests compare all Q1 lines and totals with literal expected values, plus small balanced examples, monthly totals, date boundaries, reversals, refunds, expense credits, inactive/new accounts, empty periods, malformed data, HTTP errors, and startup behavior. Monthly net income is -$21,529.65, -$13,230.25, and -$9,720.24, summing to the Q1 loss. Browser checks exercised the built application, including a stopped-server failure that preserved the prior report.
+An independent AI reviewer tabulated every entry before seeing implementation code. Those literal contributions check every account and total across 6,105 date intervals. Synthetic ledgers exercise alternative charts, leap days, reversals, and huge exact amounts through HTTP/display. Separate tests reject invalid JSON, metadata, dates, references, and unbalanced entries. Six deliberate accounting mutations must fail assertions in isolated copies. This is evidence, not proof against all bugs; the readable reference remains reviewable. Expandable journal lines and formulas aid auditing but are not independent verification. README documents commands and limitations.
 
 One actual AI-generated mistake: the initial startup callback assumed Express called it only on successful listening. Express 5 also calls it on a listen error, causing a secondary null-address crash. A failing occupied-port test reproduced it; handling the explicit `listening` and `error` events fixed it. This is documented in `tests/startup.test.js`.
 
 ## With more time
 
-Automate the browser interaction and delayed-response checks; extend metadata validation if the ledger becomes user-supplied; add more currencies only with explicit precision rules. Database storage, authentication, deployment, and editing the ledger are intentionally outside this read-only take-home.
+Automate browser interaction and delayed-response checks (rendered component checks are already automated); add currency-specific precision only with explicit rules. Duplicate entry IDs are not silently deduplicated; trace identity uses source position. Database storage, authentication, deployment, and ledger editing remain outside this read-only take-home.

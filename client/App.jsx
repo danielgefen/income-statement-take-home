@@ -64,6 +64,6 @@ export default function App() {
       {loading && <p role="status">Generating statement…{report ? ' The previous report remains below.' : ''}</p>}
       {error && <p role="alert">{error}{report ? ' The previous report remains below.' : ''}</p>}
     </div>
-    {report && <Statement report={report} />}
+    {report && <Statement key={`${report.period.start}:${report.period.end}`} report={report} />}
   </main>;
 }

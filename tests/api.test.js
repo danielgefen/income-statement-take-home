@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { readFileSync } from 'node:fs';
 import { createApp } from '../server/app.js';
 import { loadLedger } from '../server/ledger.js';
+import { financialReport } from './helpers/financial-report.js';
 
 const ledger = loadLedger(new URL('../ledger.json', import.meta.url));
 const expectedQ1 = JSON.parse(readFileSync(new URL('./fixtures/q1-statement.json', import.meta.url), 'utf8'));
@@ -18,7 +19,7 @@ async function request(t, query) {
 test('GET returns the complete exact Q1 statement as JSON', async t => {
   const response = await request(t, '?start=2026-01-01&end=2026-03-31');
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), expectedQ1);
+  assert.deepEqual(financialReport(await response.json()), expectedQ1);
 });
 
 for (const [start, end, netIncome] of [

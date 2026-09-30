@@ -8,6 +8,9 @@
   },
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "test:accounting": "node --test tests/money.test.js tests/statement.test.js tests/ranges.test.js tests/alternative-ledgers.test.js tests/calculations.test.js",
+    "test:validation": "node --test tests/ledger.test.js tests/dates.test.js tests/api.test.js",
+    "test:mutations": "node scripts/mutation-check.mjs",
     "start": "node server/index.js",
     "server": "node --watch server/index.js",
     "dev": "vite",

@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { validateLedger } from '../server/ledger.js';
 import { calculateIncomeStatement, serializeStatement } from '../server/statement.js';
 import { InvalidDateRangeError } from '../server/dates.js';
+import { financialReport } from './helpers/financial-report.js';
 
 const source = JSON.parse(readFileSync(new URL('../ledger.json', import.meta.url), 'utf8'));
 const expectedQ1 = JSON.parse(readFileSync(new URL('./fixtures/q1-statement.json', import.meta.url), 'utf8'));
@@ -36,7 +37,7 @@ test('a 100 dollar sale and 40 dollar cost yield 60 dollars of profit in exact c
 });
 
 test('matches every independently tabulated Q1 account, subtotal and profit result', () => {
-  assert.deepEqual(serializeStatement(calculateIncomeStatement(source, q1)), expectedQ1);
+  assert.deepEqual(financialReport(serializeStatement(calculateIncomeStatement(source, q1))), expectedQ1);
 });
 
 for (const [start, end, expected] of [
