@@ -62,6 +62,8 @@ Periods without income-statement activity return HTTP 200 with all relevant acco
 
 ### How to check the numbers
 
+See [TESTING.md](TESTING.md) for a plain-language coverage checklist, concrete examples, links to every test group, and an explanation of what the tests do and do not establish.
+
 ```sh
 npm test                # Node automated checks
 npm run test:accounting # correct results for supported, valid input
