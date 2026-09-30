@@ -29,7 +29,7 @@ npm run dev
 
 Open the Vite URL (normally http://127.0.0.1:5173). Vite proxies the API to port 3000. The built app needs only `npm start`. `PORT=3001 npm start` changes the built-app port; the development proxy remains configured for 3000.
 
-Locked direct dependencies: Express 5.2.1, React/React DOM 19.3.0, Vite 8.3.1, React Vite plugin 6.1.1. `npm ci` uses the committed lockfile.
+Locked direct dependencies: Express 5.2.1, React/React DOM 19.3.0, Vite 8.3.1, React Vite plugin 6.1.1, and test-only Playwright 1.63.0. `npm ci` uses the committed lockfile.
 
 ## API
 
@@ -74,7 +74,20 @@ npm run test:mutations  # prove tests reject six deliberate accounting bugs
 
 These checks give evidence for the supported single-currency, two-decimal schema, not a guarantee for every possible ledger or real-world accounting policy. Currency is a required label, not currency conversion. Balanced, structurally valid entries can still encode incorrect business facts. The independent AI reference can also be mistaken and is intentionally readable for human review.
 
-Browser acceptance checks cover Q1, March, changing dates before submission, empty periods, invalid ranges, failed-request retention, native keyboard input, and phone-width layout. Disclosure interaction checks use the browser; automated React tests check rendered content and accessibility attributes, not browser interaction. `npm test` runs the automated Node suite.
+### Browser regressions
+
+```sh
+npx playwright install chromium # once after npm ci; downloads the test browser
+npm run test:browser
+```
+
+This runs seven scenarios in desktop and phone-sized Chromium (14 checks), including all Q1 amounts, keyboard/tap disclosure controls, March submission and matching details, empty periods, invalid/missing dates, network/HTTP failures with retry, and a delayed response while draft dates are edited. Successful responses use the real Express API and built React app. Only transport failures and response timing are controlled by the tests; expected displayed amounts are literals.
+
+The form intentionally blocks resubmission while loading. The delayed-response test verifies that guard and that returned results retain their submitted period; it does not claim to exercise an out-of-order pair of different-period requests that the UI cannot initiate.
+
+The command builds the app, starts and stops its own server on port **4178**, and refuses to reuse an existing server. Leave that port free. Your preview on port 3000 is unaffected. Failures retain screenshots and traces under ignored `test-results/`; use `npx playwright show-trace <trace.zip>` to inspect a trace. For a stability check: `npm run test:browser -- --repeat-each=3`.
+
+`npm test` remains the fast automated Node suite; browser tests are a separate explicit command. Phone emulation is not a physical-device or Safari test. Browser acceptance was also exercised manually, including native keyboard date input and stopped-server report retention.
 
 ## Source
 

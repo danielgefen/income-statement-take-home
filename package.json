@@ -11,6 +11,7 @@
     "test:accounting": "node --test tests/money.test.js tests/statement.test.js tests/ranges.test.js tests/alternative-ledgers.test.js tests/calculations.test.js",
     "test:validation": "node --test tests/ledger.test.js tests/dates.test.js tests/api.test.js",
     "test:mutations": "node scripts/mutation-check.mjs",
+    "test:browser": "playwright test",
     "start": "node server/index.js",
     "server": "node --watch server/index.js",
     "dev": "vite",
@@ -22,6 +23,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@vitejs/plugin-react": "^6.1.1",
     "vite": "^8.3.1"
   }
