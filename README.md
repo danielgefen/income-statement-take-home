@@ -68,12 +68,10 @@ See [TESTING.md](TESTING.md) for the coverage checklist, test-file inventory, co
 npm test                # Node automated checks
 npm run test:accounting # correct results for supported, valid input
 npm run test:validation # malformed input and invalid request handling
-npm run test:mutations  # prove tests reject six deliberate accounting bugs
 ```
 
 - **Independent reference:** a separate AI reviewer received only the assignment, primer, and raw ledger before tabulating literal per-entry contributions. `tests/ranges.test.js` checks all **6,105 inclusive intervals** whose endpoints lie in December 14, 2025–April 2, 2026, comparing every account and subtotal/profit. It also checks 15 literal diagnostic ranges, entry reordering, and 109 period splits. See [reference provenance](tests/fixtures/reference-provenance.md).
 - **Alternative ledgers:** synthetic balanced fixtures exercise different account IDs, all-inactive accounts, leap days, reversals, missing/empty sections, and amounts beyond JavaScript Number precision through actual HTTP, JSON, and the display formatter.
-- **Mutation checks:** isolated temporary copies deliberately include draft/void entries, remove inactive history, invert revenue signs, mishandle expense credits, exclude the end date, or omit other income. Each must trigger assertion failures; syntax/import/runtime crashes do not count. Temporary copies are removed; project sources are untouched. The six mutations are targeted probes, not exhaustive mutation coverage.
 - **Trace checks:** literal expected source lines, signed credits, formula operands, cancelled-to-zero activity, and source locations are checked separately. Explanations come from the calculator, so they provide traceability—not independent proof of correctness.
 
 These checks give evidence for the supported single-currency, two-decimal schema, not a guarantee for every possible ledger or real-world accounting policy. Currency is a required label, not currency conversion. Balanced, structurally valid entries can still encode incorrect business facts. The independent AI reference can also be mistaken and is intentionally readable for human review.

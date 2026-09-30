@@ -11,12 +11,11 @@ Run commands from the repository folder after `npm ci`.
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Runs the 95 Node tests listed by group below. Includes actual HTTP requests and rendered React markup; excludes the separate browser and mutation runs. |
+| `npm test` | Runs the 95 Node tests listed by group below. Includes actual HTTP requests and rendered React markup; excludes the separate browser runs. |
 | `npm run test:accounting` | Runs the money, statement, date-range reference, alternative-ledger, and calculation-explanation files. A subset of `npm test`. |
 | `npm run test:validation` | Runs the ledger, date, and API files. A subset of `npm test`; the API file also checks valid responses. |
 | `npm run test:browser -- --list` | Lists the 22 browser checks without running them. |
 | `npm run test:browser` | Runs 11 scenarios in desktop and phone-sized Chromium: 22 checks. Builds the app and uses its own server on port 4178. |
-| `npm run test:mutations` | Runs a clean Node-test baseline, then repeats it with each of six deliberate calculation bugs in a temporary copy. |
 
 Before the first browser run, use `npx playwright install chromium`. Leave port
 4178 free. Phone emulation is not testing on a physical phone or in Safari.
@@ -183,29 +182,6 @@ transport errors or response timing only where required to reproduce a failure.
 The last scenario does not exercise two simultaneous, different-period requests:
 the UI prevents that interaction. Timeout tests advance a controlled browser
 clock, so they need not wait 15 real seconds.
-
-## Mutation checks
-
-Source: [mutation-check.mjs](scripts/mutation-check.mjs).
-
-| Deliberate code change | Example of the accounting error it would cause |
-| --- | --- |
-| Include draft/void entries | The $5,000 draft bonus incorrectly reduces net income. |
-| Drop inactive accounts | The legitimate $2,500.10 Marketing expense disappears. |
-| Reverse the revenue sign | An ordinary sale reduces revenue rather than increasing it. |
-| Add expense credits | Software becomes $1,299.97 instead of $1,099.97. |
-| Exclude the end date | A March 31 end date misses that day's payroll, revenue recognition, and interest. |
-| Omit other income | Q1 net income omits the $42.18 interest income. |
-
-The script first requires a passing baseline. It then edits a temporary copy of
-the calculator, one change at a time, and reruns the Node suite. A change is
-“caught” only when there are assertion failures and no disqualifying crashes or
-other failures. A syntax/import error is not evidence of accounting coverage.
-If the changed code still passes, the script reports `SURVIVED` and fails. The
-original app and ledger are not modified; the temporary copy is removed.
-
-This is six targeted experiments, not exhaustive mutation testing or a percentage
-of all possible mistakes. The script does not run the browser suite.
 
 ## Coverage limits
 
