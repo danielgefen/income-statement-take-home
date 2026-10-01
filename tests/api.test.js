@@ -9,6 +9,26 @@ import { financialReport } from './helpers/financial-report.js';
 const ledger = loadLedger(new URL('../ledger.json', import.meta.url));
 const expectedQ1 = JSON.parse(readFileSync(new URL('./fixtures/q1-statement.json', import.meta.url), 'utf8'));
 
+for (const [currency, expected] of [['EUR', '-40032.13'], ['GBP', '-35584.12']]) {
+  test(`GET returns a converted ${currency} report`, async t => {
+    const response = await request(t, `?start=2026-01-01&end=2026-03-31&currency=${currency}`);
+    assert.equal(response.status, 200);
+    const report = await response.json();
+    assert.equal(report.currency, currency);
+    assert.equal(report.netIncome, expected);
+    assert.equal(typeof report.revenue.accounts[0].calculation.roundingAdjustment, 'string');
+  });
+}
+
+for (const currencyQuery of ['currency=JPY', 'currency=', 'currency=EUR&currency=GBP',
+  'currency=EUR' + '&x=1'.repeat(998) + '&currency=GBP']) {
+  test(`GET rejects invalid currency selection: ${currencyQuery.slice(0, 45)}`, async t => {
+    const response = await request(t, `?start=2026-01-01&end=2026-03-31&${currencyQuery}`);
+    assert.equal(response.status, 400);
+    assert.equal((await response.json()).error.code, 'INVALID_CURRENCY');
+  });
+}
+
 async function request(t, query) {
   const server = createApp(ledger).listen(0, '127.0.0.1');
   t.after(() => new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve())));

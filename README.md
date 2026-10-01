@@ -13,7 +13,9 @@ npm run build
 npm start
 ```
 
-Open http://127.0.0.1:3000. The initial report covers January 1–March 31, 2026. Choose dates, then select **Generate statement**. Changing inputs alone does not change the displayed report.
+Open http://127.0.0.1:3000. The initial report covers January 1–March 31, 2026 in USD. Choose dates and a currency, then select **Generate statement**. Changing inputs alone does not change the displayed report.
+
+EUR and GBP use fixed demonstration rates: **1 USD = 0.90 EUR** and **1 USD = 0.80 GBP**. These are examples, not live market rates. The source ledger remains in USD. Each account's exact USD sum is converted and rounded once to cents; section and profit totals are calculated from the displayed account amounts. Expanded details show converted debits, credits, contributions, and any rounding adjustment needed to reconcile the displayed lines with the account total.
 
 Requests time out after 15 seconds. A timeout or failed response leaves the previous report visible and re-enables Generate for a manual retry. Non-JSON responses show a friendly error rather than parser details.
 
@@ -39,7 +41,7 @@ Locked direct dependencies: Express 5.2.1, React/React DOM 19.3.0, Vite 8.3.1, R
 curl 'http://127.0.0.1:3000/income-statement?start=2026-01-01&end=2026-03-31'
 ```
 
-The response includes company, currency, period, account lines and totals for `revenue`, `costOfGoodsSold`, `operatingExpenses`, and `otherIncome`, plus `grossProfit`, `operatingIncome`, and `netIncome`. Every monetary value is an exact two-decimal string, such as `"-44480.14"`. Each account's `calculation` includes its sign rule and source lines; root `calculations` contains profit formulas. Source locations use a zero-based `entryIndex` and one-based `lineNumber`; entry IDs are not assumed unique and records are never silently deduplicated.
+The response includes company, currency, period, account lines and totals for `revenue`, `costOfGoodsSold`, `operatingExpenses`, and `otherIncome`, plus `grossProfit`, `operatingIncome`, and `netIncome`. Every monetary value is an exact two-decimal string, such as `"-44480.14"`. Each account's `calculation` includes its sign rule and source lines; root `calculations` contains profit formulas. Source locations use a zero-based `entryIndex` and one-based `lineNumber`; entry IDs are not assumed unique and records are never silently deduplicated. An optional `currency=EUR` or `currency=GBP` query parameter requests a converted report; omitting it returns USD. Converted responses include `exchangeRate`, and unsupported or repeated currency values return HTTP 400 with `INVALID_CURRENCY`.
 
 Dates must be single, real Gregorian `YYYY-MM-DD` values (years 0001–9999), with start on or before end. Both dates are included. Missing, repeated, invalid, or reversed dates return HTTP 400:
 
@@ -54,7 +56,7 @@ Periods without income-statement activity return HTTP 200 with all relevant acco
 - `ledger.json`: unchanged supplied data, loaded and validated once at startup.
 - `server/ledger.js`: metadata types, account references, classifications, dates, amounts, statuses, and balanced-entry validation (including draft/void records).
 - `server/statement.js`: pure calculation independent of Express or React.
-- `shared/money.js`: decimal strings ↔ BigInt cents; exact display formatting without floating-point conversion.
+- `shared/money.js`: decimal strings ↔ BigInt cents; exact display formatting without floating-point conversion. `server/currency.js` defines demonstration rates and integer-only conversion.
 - `server/dates.js`: timezone-free calendar validation, also reused by the form.
 - `server/app.js`: HTTP adapter; `server/index.js`: startup and built-page serving.
 - `client/`: date form, request state, and semantic report table. No financial calculations in React.
@@ -74,7 +76,7 @@ npm run test:validation # malformed input and invalid request handling
 - **Alternative ledgers:** synthetic balanced fixtures exercise different account IDs, all-inactive accounts, leap days, reversals, missing/empty sections, and amounts beyond JavaScript Number precision through actual HTTP, JSON, and the display formatter.
 - **Trace checks:** literal expected source lines, signed credits, formula operands, cancelled-to-zero activity, and source locations are checked separately. Explanations come from the calculator, so they provide traceability—not independent proof of correctness.
 
-These checks give evidence for the supported single-currency, two-decimal schema, not a guarantee for every possible ledger or real-world accounting policy. Currency is a required label, not currency conversion. Balanced, structurally valid entries can still encode incorrect business facts. The independent AI reference can also be mistaken and is intentionally readable for human review.
+These checks give evidence for the supplied USD ledger and the two demonstration conversions, not a guarantee for every possible ledger or real-world accounting policy. Balanced, structurally valid entries can still encode incorrect business facts. The independent AI reference can also be mistaken and is intentionally readable for human review.
 
 ### Browser regressions
 
@@ -83,7 +85,7 @@ npx playwright install chromium # once after npm ci; downloads the test browser
 npm run test:browser
 ```
 
-This runs eleven scenarios in desktop and phone-sized Chromium (22 checks), including all Q1 amounts, keyboard/tap disclosure controls, March submission and matching details, empty periods, invalid/missing dates, network/HTTP/non-JSON failures with retry, initial and subsequent request timeouts, and a delayed response while draft dates are edited. Successful responses use the real Express API and built React app. Only transport failures and response timing are controlled by the tests; expected displayed amounts are literals. A controlled browser clock verifies the 15-second timeout boundary and successful retry without a real-time wait.
+This runs thirteen scenarios in desktop and phone-sized Chromium (26 checks), including all Q1 amounts, currency changes and expanded details, keyboard/tap disclosure controls, March submission and matching details, empty periods, invalid/missing dates, network/HTTP/non-JSON failures with retry, initial and subsequent request timeouts, and a delayed response while draft dates are edited. Successful responses use the real Express API and built React app. Only transport failures and response timing are controlled by the tests; expected displayed amounts are literals. A controlled browser clock verifies the 15-second timeout boundary and successful retry without a real-time wait.
 
 The form intentionally blocks resubmission while loading. The delayed-response test verifies that guard and that returned results retain their submitted period; it does not claim to exercise an out-of-order pair of different-period requests that the UI cannot initiate.
 

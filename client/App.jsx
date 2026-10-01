@@ -3,7 +3,7 @@ import { validateDateRange } from '../server/dates.js';
 import Statement from './Statement.jsx';
 import './styles.css';
 
-const initialPeriod = { start: '2026-01-01', end: '2026-03-31' };
+const initialPeriod = { start: '2026-01-01', end: '2026-03-31', currency: 'USD' };
 const requestTimeoutMs = 15_000;
 
 export default function App() {
@@ -50,7 +50,7 @@ export default function App() {
   function submit(event) {
     event.preventDefault();
     if (loading) return;
-    try { generate(validateDateRange(draft.start, draft.end)); }
+    try { generate({ ...validateDateRange(draft.start, draft.end), currency: draft.currency }); }
     catch (failure) { setError(failure.message); }
   }
 
@@ -68,12 +68,19 @@ export default function App() {
         <input type="date" required min="0001-01-01" max="9999-12-31" value={draft.end}
           onChange={event => setDraft({ ...draft, end: event.target.value })} />
       </label>
+      <label>Currency
+        <select value={draft.currency} onChange={event => setDraft({ ...draft, currency: event.target.value })}>
+          <option value="USD">USD — US dollars</option>
+          <option value="EUR">EUR — Euros</option>
+          <option value="GBP">GBP — British pounds</option>
+        </select>
+      </label>
       <button type="submit" disabled={loading}>{loading ? 'Generating…' : 'Generate statement'}</button>
     </form>
     <div className="request-status">
       {loading && <p role="status">Generating statement…{report ? ' The previous report remains below.' : ''}</p>}
       {error && <p role="alert">{error}{report ? ' The previous report remains below.' : ''}</p>}
     </div>
-    {report && <Statement key={`${report.period.start}:${report.period.end}`} report={report} />}
+    {report && <Statement key={`${report.period.start}:${report.period.end}:${report.currency}`} report={report} />}
   </main>;
 }

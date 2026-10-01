@@ -11,11 +11,11 @@ Run commands from the repository folder after `npm ci`.
 
 | Command | What it does |
 | --- | --- |
-| `npm test` | Runs the 95 Node tests listed by group below. Includes actual HTTP requests and rendered React markup; excludes the separate browser runs. |
-| `npm run test:accounting` | Runs the money, statement, date-range reference, alternative-ledger, and calculation-explanation files. A subset of `npm test`. |
+| `npm test` | Runs the 111 Node tests listed by group below. Includes actual HTTP requests and rendered React markup; excludes the separate browser runs. |
+| `npm run test:accounting` | Runs the money, currency, statement, date-range reference, alternative-ledger, and calculation-explanation files. A subset of `npm test`. |
 | `npm run test:validation` | Runs the ledger, date, and API files. A subset of `npm test`; the API file also checks valid responses. |
-| `npm run test:browser -- --list` | Lists the 22 browser checks without running them. |
-| `npm run test:browser` | Runs 11 scenarios in desktop and phone-sized Chromium: 22 checks. Builds the app and uses its own server on port 4178. |
+| `npm run test:browser -- --list` | Lists the 26 browser checks without running them. |
+| `npm run test:browser` | Runs 13 scenarios in desktop and phone-sized Chromium: 26 checks. Builds the app and uses its own server on port 4178. |
 
 Before the first browser run, use `npx playwright install chromium`. Leave port
 4178 free. Phone emulation is not testing on a physical phone or in Safari.
@@ -30,13 +30,14 @@ those comparisons are not 6,105 separately named tests.
 | [ranges.test.js](tests/ranges.test.js) | 18 | Does the supplied ledger reconcile over different periods? |
 | [alternative-ledgers.test.js](tests/alternative-ledgers.test.js) | 4 | Does the code work beyond the supplied account chart? |
 | [money.test.js](tests/money.test.js) | 6 | Is every cent preserved through parsing and formatting? |
+| [currency.test.js](tests/currency.test.js) | 9 | Do the demonstration conversions round exactly and reconcile? |
 | [dates.test.js](tests/dates.test.js) | 5 | Are the date inputs real, supported calendar dates? |
 | [ledger.test.js](tests/ledger.test.js) | 22 | Is unsupported or inconsistent source data rejected? |
-| [api.test.js](tests/api.test.js) | 12 | Does the real HTTP endpoint return correct results and errors? |
+| [api.test.js](tests/api.test.js) | 18 | Does the real HTTP endpoint return correct results and errors? |
 | [calculations.test.js](tests/calculations.test.js) | 6 | Can each explanation be traced to the actual source lines? |
-| [statement-view.test.js](tests/statement-view.test.js) | 4 | Is the expected information present in the rendered HTML? |
+| [statement-view.test.js](tests/statement-view.test.js) | 5 | Is the expected information present in the rendered HTML? |
 | [startup.test.js](tests/startup.test.js) | 1 | Does an occupied port fail with a useful startup error? |
-| **Total** | **95** | |
+| **Total** | **111** | |
 
 ## Calculation correctness
 
@@ -159,7 +160,7 @@ browser suite below. Explanations come from the same calculator as the amounts,
 so they support traceability; matching explanations alone cannot prove the
 accounting is correct.
 
-## Browser checklist: 11 scenarios, each run twice
+## Browser checklist: 13 scenarios, each run twice
 
 Source: [browser tests](tests/browser/statement.spec.js).
 
@@ -178,6 +179,8 @@ transport errors or response timing only where required to reproduce a failure.
 9. [x] **Initial request timeout:** still loading at 14,999 ms; at 15,000 ms the fetch is aborted, a timeout message appears, and Generate enables a successful retry. No report is invented before one succeeds.
 10. [x] **Later request timeout:** the same boundary and actual cancellation, retaining the previous report. Both timeout tests also advance time after retry to check for a false timeout from leftover timers.
 11. [x] **Delayed response:** resubmission is blocked while loading. Editing draft dates during the wait cannot relabel the pending report; the returned statement keeps its submitted dates. The user can then submit the next period.
+12. [x] **Currency selection:** GBP, EUR, and USD generate matching report amounts and expanded details; editing the dropdown alone retains the displayed report.
+13. [x] **Currency request failure:** the old currency and report remain visible until a successful retry.
 
 The last scenario does not exercise two simultaneous, different-period requests:
 the UI prevents that interaction. Timeout tests advance a controlled browser
@@ -185,7 +188,7 @@ clock, so they need not wait 15 real seconds.
 
 ## Coverage limits
 
-- Coverage is for the supported single-currency, two-decimal schema. There is no FX conversion or general accounting-policy engine.
+- Conversion coverage uses fixed USD-to-EUR/GBP demonstration rates and two-decimal output. There is no live exchange-rate service or general multi-currency accounting engine.
 - Different-ledger fixtures broaden the examples; they cannot establish correctness for every possible JSON file.
 - Browser coverage is Chromium only, with selected keyboard/accessibility assertions rather than a complete accessibility audit.
 - Non-JSON response handling is tested; arbitrary, syntactically valid but wrongly shaped successful JSON responses are not fully validated by the client.
