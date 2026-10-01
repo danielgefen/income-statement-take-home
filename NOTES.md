@@ -20,7 +20,7 @@ Only posted entries within the inclusive date range count. Revenue uses credits 
 
 The supplied journal is authoritative: the $12,000 subscription invoice is deferred revenue, with only three $1,000 recognition entries counted in Q1. Cash collection is not revenue again. All $9,000 rent stays in January as posted; this report does not introduce new accrual entries. Returns/discounts reduce revenue, and the $100 vendor credit reduces software expense. Draft bonuses and void duplicates are excluded.
 
-Amounts use BigInt cents from parsing through calculation, and exact decimal strings across JSON and display. This fixed USD dataset accepts two-decimal nonnegative journal amounts; unsupported precision is rejected rather than rounded. Invalid ledger data fails startup instead of producing a partial report. Empty periods are successful zero reports, not errors.
+Amounts use BigInt cents from parsing through calculation, and exact decimal strings across JSON and display. This fixed USD dataset accepts two-decimal nonnegative journal amounts; unsupported precision is rejected rather than rounded. EUR/GBP use fixed demonstration rates, with integer-only conversion and rounding once per account. Subtotals use converted account amounts; expanded details show any rounding adjustment. Invalid ledger data fails startup instead of producing a partial report. Empty periods are successful zero reports, not errors.
 
 ## Verification and AI assistance
 

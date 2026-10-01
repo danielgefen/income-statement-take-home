@@ -25,10 +25,12 @@ function Result({ label, amount }) {
   return <p className="calculation-result"><span>{label}</span><strong>{formatAmount(amount)}</strong></p>;
 }
 
-export function AccountCalculation({ account }) {
-  const { rule, lines } = account.calculation;
+export function AccountCalculation({ account, currency, converted = false }) {
+  const { rule, lines, roundingAdjustment = '0.00' } = account.calculation;
   return <>
     <p className="calculation-rule">{rule === 'credits-minus-debits' ? 'Credits − debits' : 'Debits − credits'} for each included line; then sum the contributions.</p>
+    {currency && <p>All amounts below are in {currency}.</p>}
+    {converted && <p>Source amounts are converted at the report's demonstration rate. The account total is rounded once; individual lines are rounded for display.</p>}
     {lines.length === 0 ? <p>No posted lines for this account in this period.</p> : <ul className="source-lines">
       {lines.map(line => <li key={`${line.entryIndex}:${line.lineNumber}`}>
         <p className="source-identity">{line.entryId} · {line.date} · {line.status} · source entry {line.entryIndex + 1}, line {line.lineNumber}</p>
@@ -40,7 +42,8 @@ export function AccountCalculation({ account }) {
         </dl>
       </li>)}
     </ul>}
-    <Result label="Sum of contributions" amount={account.amount} />
+    {roundingAdjustment !== '0.00' && <Result label="Rounding adjustment" amount={roundingAdjustment} />}
+    <Result label={roundingAdjustment === '0.00' ? 'Sum of contributions' : 'Sum of contributions plus rounding adjustment'} amount={account.amount} />
   </>;
 }
 
@@ -75,12 +78,12 @@ function Profit({ label, field, report }) {
   </ReportRow>;
 }
 
-function Section({ title, group }) {
+function Section({ title, group, currency, converted }) {
   const totalLabel = `Total ${title.toLowerCase()}`;
   return <>
     <tr className="section-row"><th colSpan="3" scope="colgroup">{title}</th></tr>
     {group.accounts.map(account => <ReportRow key={account.number} number={account.number} label={account.name}
-      amount={account.amount} className="account-row"><AccountCalculation account={account} /></ReportRow>)}
+      amount={account.amount} className="account-row"><AccountCalculation account={account} currency={currency} converted={converted} /></ReportRow>)}
     <ReportRow label={totalLabel} amount={group.total} className="subtotal-row">
       <SumCalculation group={group} label={totalLabel} />
     </ReportRow>
@@ -93,15 +96,16 @@ export default function Statement({ report }) {
       <caption>
         <span>{report.period.start} to {report.period.end}</span>
         <span>Amounts in {report.currency} · Select any amount to see its calculation.</span>
+        {report.exchangeRate && <span>Demonstration rate: 1 {report.exchangeRate.source} = {report.exchangeRate.rate} {report.currency}. All statement and calculation amounts are in {report.currency}.</span>}
       </caption>
       <thead><tr><th scope="col">Account</th><th scope="col">Name</th><th scope="col">Amount</th></tr></thead>
       <tbody>
-        <Section title="Revenue" group={report.revenue} />
-        <Section title="Cost of goods sold" group={report.costOfGoodsSold} />
+        <Section title="Revenue" group={report.revenue} currency={report.currency} converted={Boolean(report.exchangeRate)} />
+        <Section title="Cost of goods sold" group={report.costOfGoodsSold} currency={report.currency} converted={Boolean(report.exchangeRate)} />
         <Profit label="Gross profit" field="grossProfit" report={report} />
-        <Section title="Operating expenses" group={report.operatingExpenses} />
+        <Section title="Operating expenses" group={report.operatingExpenses} currency={report.currency} converted={Boolean(report.exchangeRate)} />
         <Profit label="Operating income" field="operatingIncome" report={report} />
-        <Section title="Other income" group={report.otherIncome} />
+        <Section title="Other income" group={report.otherIncome} currency={report.currency} converted={Boolean(report.exchangeRate)} />
         <Profit label="Net income" field="netIncome" report={report} />
       </tbody>
     </table>

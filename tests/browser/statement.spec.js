@@ -5,7 +5,10 @@ const amount = (page, label) => page.getByRole('button', { name: new RegExp(`: (
 const details = (page, label) => page.getByRole('region', { name: `Calculation for ${label}`, exact: true });
 const caption = page => page.getByRole('table').getByRole('caption');
 const apiRequest = request => new URL(request.url()).pathname === '/income-statement';
-const periodOf = request => Object.fromEntries(new URL(request.url()).searchParams);
+const periodOf = request => {
+  const query = new URL(request.url()).searchParams;
+  return { start: query.get('start'), end: query.get('end') };
+};
 
 async function expectAmount(page, label, value) {
   await expect(amount(page, label)).toHaveText(new RegExp(`^[▸▾]${escape(value)}$`));
@@ -16,6 +19,53 @@ async function openQ1(page) {
   await expectAmount(page, 'Net income', '(44,480.14)');
   await expect(caption(page)).toContainText('2026-01-01 to 2026-03-31');
 }
+
+test('currency selection converts the real report and all expanded amounts on submission', async ({ page }) => {
+  await openQ1(page);
+  await amount(page, 'Software').click();
+  const requests = [];
+  page.on('request', request => { if (apiRequest(request)) requests.push(new URL(request.url()).searchParams.get('currency')); });
+  await page.getByRole('combobox', { name: 'Currency' }).selectOption('GBP');
+  await expect(caption(page)).toContainText('Amounts in USD');
+  expect(requests).toEqual([]);
+  await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+  await expect(caption(page)).toContainText('1 USD = 0.80 GBP');
+  await expectAmount(page, 'Net income', '(35,584.12)');
+  await expect(amount(page, 'Software')).toHaveAttribute('aria-expanded', 'false');
+  await amount(page, 'Software').click();
+  await expect(details(page, 'Software')).toContainText('All amounts below are in GBP');
+  for (const value of ['959.98', '80.00', '(80.00)', '879.98']) await expect(details(page, 'Software')).toContainText(value);
+  await expect(details(page, 'Software')).not.toContainText('1,199.97');
+  await amount(page, 'Total operating expenses').click();
+  await expect(details(page, 'Total operating expenses')).toContainText('879.98');
+  await expect(details(page, 'Total operating expenses')).toContainText('54,480.06');
+  await amount(page, 'Net income').click();
+  await expect(details(page, 'Net income')).toContainText('(35,617.86)');
+  await expect(details(page, 'Net income')).toContainText('33.74');
+  await page.getByRole('combobox', { name: 'Currency' }).selectOption('EUR');
+  await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+  await expect(caption(page)).toContainText('1 USD = 0.90 EUR');
+  await expectAmount(page, 'Net income', '(40,032.13)');
+  await page.getByRole('combobox', { name: 'Currency' }).selectOption('USD');
+  await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+  await expectAmount(page, 'Net income', '(44,480.14)');
+  await expect(caption(page)).not.toContainText('Demonstration rate');
+  expect(requests).toEqual(['GBP', 'EUR', 'USD']);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('failed currency requests retain the previous currency and allow retry', async ({ page }) => {
+  await openQ1(page);
+  await page.getByRole('combobox', { name: 'Currency' }).selectOption('EUR');
+  await page.route('**/income-statement?*', route => route.abort('failed'), { times: 1 });
+  await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(caption(page)).toContainText('Amounts in USD');
+  await expectAmount(page, 'Net income', '(44,480.14)');
+  await page.getByRole('button', { name: 'Generate statement', exact: true }).click();
+  await expect(caption(page)).toContainText('Amounts in EUR');
+  await expectAmount(page, 'Net income', '(40,032.13)');
+});
 
 async function setPeriod(page, start, end) {
   await page.getByLabel('Start date', { exact: true }).fill(start);

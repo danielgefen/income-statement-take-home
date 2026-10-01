@@ -1,5 +1,6 @@
 import { parseLedgerAmount, centsToDecimal } from '../shared/money.js';
 import { validateDateRange } from './dates.js';
+import { exchangeRate, convertCents } from './currency.js';
 
 const sectionForSubtype = new Map([
   ['operating_revenue', 'revenue'], ['contra_revenue', 'revenue'],
@@ -9,9 +10,11 @@ const sectionForSubtype = new Map([
 const sections = ['revenue', 'costOfGoodsSold', 'operatingExpenses', 'otherIncome'];
 
 // The ledger is validated at startup. This function has no I/O or mutable global state.
-export function calculateIncomeStatement(ledger, { start, end }) {
+export function calculateIncomeStatement(ledger, { start, end, currency = ledger.currency }) {
   const period = validateDateRange(start, end);
-  const report = { company: ledger.company, currency: ledger.currency, period };
+  const conversion = exchangeRate(ledger.currency, currency);
+  const report = { company: ledger.company, currency, period };
+  if (conversion) report.exchangeRate = conversion;
   for (const section of sections) report[section] = { accounts: [], total: 0n };
   const rows = new Map();
   for (const account of ledger.accounts) {
@@ -41,6 +44,18 @@ export function calculateIncomeStatement(ledger, { start, end }) {
     }
   }
   for (const section of sections) {
+    if (conversion) for (const row of report[section].accounts) {
+      // Convert the exact account sum once, avoiding per-line rounding drift.
+      row.amount = convertCents(row.amount, conversion.rate);
+      let displayedSum = 0n;
+      for (const line of row.calculation.lines) {
+        line.debit = centsToDecimal(convertCents(parseLedgerAmount(line.debit), conversion.rate));
+        line.credit = centsToDecimal(convertCents(parseLedgerAmount(line.credit), conversion.rate));
+        line.contribution = convertCents(line.contribution, conversion.rate);
+        displayedSum += line.contribution;
+      }
+      row.calculation.roundingAdjustment = row.amount - displayedSum;
+    }
     report[section].total = report[section].accounts.reduce((sum, row) => sum + row.amount, 0n);
   }
   report.grossProfit = report.revenue.total - report.costOfGoodsSold.total;
@@ -69,7 +84,11 @@ export function serializeStatement(statement) {
     result[section] = {
       accounts: statement[section].accounts.map(row => ({
         ...row, amount: centsToDecimal(row.amount),
-        calculation: { ...row.calculation, lines: row.calculation.lines.map(line => ({
+        calculation: { ...row.calculation,
+          ...(row.calculation.roundingAdjustment !== undefined && {
+            roundingAdjustment: centsToDecimal(row.calculation.roundingAdjustment),
+          }),
+          lines: row.calculation.lines.map(line => ({
           ...line, contribution: centsToDecimal(line.contribution),
         })) },
       })),

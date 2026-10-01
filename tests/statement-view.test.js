@@ -55,3 +55,13 @@ test('net-income formula displays addition of negative operating income and posi
   const html = render(FormulaCalculation, { calculation: report.calculations.netIncome, label: 'Net income', amount: report.netIncome });
   for (const text of ['Operating income', 'Total other income', '(44,522.32)', '42.18', '+', '(44,480.14)']) assert.ok(html.includes(text), text);
 });
+
+test('converted account details label the currency and show a rounding adjustment', () => {
+  const account = structuredClone(report.revenue.accounts[0]);
+  account.calculation.roundingAdjustment = '-0.01';
+  const html = render(AccountCalculation, { account, currency: 'GBP', converted: true });
+  assert.ok(html.includes('All amounts below are in GBP.'));
+  assert.ok(html.includes('Rounding adjustment'));
+  assert.ok(html.includes('(0.01)'));
+  assert.ok(html.includes('Sum of contributions plus rounding adjustment'));
+});
